@@ -1,26 +1,142 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --clay-950: #241a14;
+  --clay-900: #2f2a25;
+  --clay-800: #4a3728;
+  --clay-700: #6b4226;
+  --clay-600: #8a5a3a;
+  --clay-500: #c1633d;
+  --clay-400: #d68652;
+  --clay-300: #e8a87c;
+  --clay-200: #f0c9a5;
+  --clay-100: #f7e2c7;
+  --paper-100: #fbf4ea;
+  --paper-50: #fdf9f2;
+  --sage-600: #5f7a56;
+  --sage-500: #7c9473;
+  --sage-300: #b7c8ad;
+  --ochre-500: #d4af6a;
+  --ochre-300: #e9cf9f;
+
+  --background: var(--paper-50);
+  --foreground: var(--clay-900);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-clay-950: var(--clay-950);
+  --color-clay-900: var(--clay-900);
+  --color-clay-800: var(--clay-800);
+  --color-clay-700: var(--clay-700);
+  --color-clay-600: var(--clay-600);
+  --color-clay-500: var(--clay-500);
+  --color-clay-400: var(--clay-400);
+  --color-clay-300: var(--clay-300);
+  --color-clay-200: var(--clay-200);
+  --color-clay-100: var(--clay-100);
+
+  --color-paper-50: var(--paper-50);
+  --color-paper-100: var(--paper-100);
+
+  --color-sage-600: var(--sage-600);
+  --color-sage-500: var(--sage-500);
+  --color-sage-300: var(--sage-300);
+
+  --color-ochre-500: var(--ochre-500);
+  --color-ochre-300: var(--ochre-300);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-instrument);
+  --font-hand: var(--font-hand);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-grain: grain 8s steps(10) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(-1.5deg); }
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1%, -2%); }
+  20% { transform: translate(-3%, 1%); }
+  30% { transform: translate(2%, -3%); }
+  40% { transform: translate(-2%, 3%); }
+  50% { transform: translate(3%, 1%); }
+  60% { transform: translate(-1%, 2%); }
+  70% { transform: translate(2%, 2%); }
+  80% { transform: translate(-3%, -1%); }
+  90% { transform: translate(1%, -2%); }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-hand {
+  font-family: var(--font-hand);
+}
+
+/* watercolour wash — layered soft organic colour, reads like pigment bleeding
+   into paper rather than a flat computed fill */
+.watercolor {
+  background-color: var(--paper-50);
+  background-image:
+    radial-gradient(60% 55% at 18% 22%, rgba(193, 99, 61, 0.16), transparent 60%),
+    radial-gradient(55% 50% at 85% 30%, rgba(124, 148, 115, 0.16), transparent 62%),
+    radial-gradient(70% 60% at 65% 88%, rgba(212, 175, 106, 0.16), transparent 60%);
+}
+
+/* torn / deckle paper edge, applied top & bottom of a band */
+.torn-edge {
+  -webkit-mask-image:
+    radial-gradient(circle at 8px -4px, transparent 8px, black 9px);
+  mask-image: radial-gradient(circle at 8px -4px, transparent 8px, black 9px);
+  -webkit-mask-size: 22px 100%;
+  mask-size: 22px 100%;
+}
+
+/* a strip of masking tape holding a photo to the wall */
+.tape {
+  position: absolute;
+  width: 84px;
+  height: 26px;
+  background: rgba(232, 217, 168, 0.72);
+  box-shadow: 0 1px 3px rgba(74, 55, 40, 0.15);
+  backdrop-filter: blur(0.5px);
+}
+.tape::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.25) 0 6px, transparent 6px 12px);
+  opacity: 0.5;
+}
+
+/* subtle paper grain overlay used on light sections */
+.grain-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: var(--animate-grain);
+}
+
+::selection {
+  background: var(--clay-300);
+  color: var(--clay-950);
 }

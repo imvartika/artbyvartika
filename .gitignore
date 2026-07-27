@@ -36,6 +36,12 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local-only scratch (source photos, scraped data, etc.)
+.local
+
+# per-developer local settings — may contain secrets in approved-command history
+.claude/settings.local.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
