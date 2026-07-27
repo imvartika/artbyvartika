@@ -9,6 +9,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
   const [mode, setMode] = useState<"loading" | "login" | "set-password">("loading");
   const [email, setEmail] = useState("");
+  const [recoveryEmail, setRecoveryEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
@@ -33,10 +34,14 @@ export default function AdminLoginPage() {
         const access_token = p.get("access_token");
         const refresh_token = p.get("refresh_token");
         if (access_token && refresh_token) {
-          const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+          const { data: sessionData, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token,
+          });
           // strip the tokens out of the address bar
           window.history.replaceState(null, "", window.location.pathname);
           if (!error) {
+            setRecoveryEmail(sessionData.user?.email ?? "");
             setMode("set-password");
             return;
           }
@@ -44,12 +49,16 @@ export default function AdminLoginPage() {
       }
 
       const { data } = await supabase.auth.getSession();
+      setRecoveryEmail(data.session?.user?.email ?? "");
       setMode(data.session ? "set-password" : "login");
     }
     init();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "PASSWORD_RECOVERY") setMode("set-password");
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setRecoveryEmail(session?.user?.email ?? "");
+        setMode("set-password");
+      }
     });
 
     return () => sub.subscription.unsubscribe();
@@ -133,9 +142,27 @@ export default function AdminLoginPage() {
             <input
               type="email"
               required
+              autoComplete="username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 w-full rounded-lg border border-clay-200 px-3 py-2 outline-none focus:border-clay-500"
+            />
+          </label>
+        )}
+
+        {mode === "set-password" && (
+          <label className="mt-6 block text-sm text-clay-800">
+            Email
+            {/* read-only: this account was chosen by whoever the reset link was
+                sent to, not something to change here. Also lets the browser's
+                password manager associate the new password with this email. */}
+            <input
+              type="email"
+              readOnly
+              tabIndex={-1}
+              autoComplete="username"
+              value={recoveryEmail}
+              className="mt-1 w-full cursor-not-allowed rounded-lg border border-clay-200 bg-paper-100 px-3 py-2 text-clay-800/70 outline-none"
             />
           </label>
         )}
@@ -146,6 +173,7 @@ export default function AdminLoginPage() {
             type="password"
             required
             minLength={8}
+            autoComplete={mode === "set-password" ? "new-password" : "current-password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1 w-full rounded-lg border border-clay-200 px-3 py-2 outline-none focus:border-clay-500"
